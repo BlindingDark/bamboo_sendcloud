@@ -45,9 +45,9 @@ defmodule Bamboo.Sendcloud.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:bamboo, "~> 0.5"},
+      {:bamboo, "~> 1.4"},
       {:hackney, "~> 1.6"},
-      {:poison, ">= 1.5.0"},
+      {:jason, "~> 1.1"},
       {:plug, "~> 1.0"},
       {:cowboy, "~> 1.0", only: [:test, :dev]},
       {:ex_doc, "~> 0.13", only: :dev},

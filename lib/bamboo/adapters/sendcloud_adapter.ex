@@ -55,8 +55,9 @@ defmodule Bamboo.SendcloudAdapter do
       |> append_auth_info(config)
       |> Plug.Conn.Query.encode()
 
-    with {:ok, 200, _headers, response} <- :hackney.post(uri, headers, encoded_body, [:with_body]),
-         {:ok, json} <- Poison.decode(response) do
+    with {:ok, 200, _headers, response} <-
+           :hackney.post(uri, headers, encoded_body, [:with_body]),
+         {:ok, json} <- Jason.decode(response) do
       {:ok, json}
     else
       {:ok, _status, _headers, response} ->
@@ -176,7 +177,7 @@ defmodule Bamboo.SendcloudAdapter do
   defp put_headers(body, %Email{headers: headers}) do
     encoded =
       headers
-      |> Poison.encode!()
+      |> Jason.encode!()
 
     Map.put(body, :headers, encoded)
   end
@@ -192,7 +193,7 @@ defmodule Bamboo.SendcloudAdapter do
         to: [to],
         sub: sub
       }
-      |> Poison.encode!()
+      |> Jason.encode!()
 
     body
     |> Map.put(:xsmtpapi, content)
