@@ -1,8 +1,8 @@
 defmodule Bamboo.Sendcloud.Mixfile do
   use Mix.Project
 
-  @version "0.2.0"
-  @project_url "https://github.com/linjunpop/bamboo_sendcloud"
+  @version "0.3.0"
+  @project_url "https://github.com/BlindingDark/bamboo_sendcloud"
 
   def project do
     [
@@ -58,7 +58,7 @@ defmodule Bamboo.Sendcloud.Mixfile do
 
   defp package do
     [
-      maintainers: ["Jun Lin"],
+      maintainers: ["Jun Lin", "BlindingDark"],
       licenses: ["MIT"],
       links: %{"GitHub" => @project_url}
     ]
