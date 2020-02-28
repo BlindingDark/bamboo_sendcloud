@@ -21,18 +21,17 @@ defmodule Bamboo.SendcloudAdapter do
   @behaviour Bamboo.Adapter
 
   @base_uri "http://api.sendcloud.net/apiv2"
-  @send_email_uri @base_uri <> "/mail/send"
-  @send_template_email_uri @base_uri <> "/mail/sendtemplate"
+  @base_uri_international "http://api2.sendcloud.net/api"
+  @send_email_path "/mail/send"
+  @send_template_email_path "/mail/sendtemplate"
 
   alias Bamboo.Email
-  alias Bamboo.SendcloudAdapter.ApiError
+  alias Bamboo.SendcloudAdapter.{ApiError, Config}
 
-  def deliver(email, config) do
-    body =
-      email
-      |> to_sendcloud_body()
-
-    uri = api_uri(email)
+  def deliver(email, config) when is_map(config) do
+    config = Config.from_map(config)
+    body = email |> to_sendcloud_body()
+    uri = api_uri(email, config)
 
     {:ok, json} = do_request(uri, body, config)
 
@@ -60,14 +59,11 @@ defmodule Bamboo.SendcloudAdapter do
          {:ok, json} <- Jason.decode(response) do
       {:ok, json}
     else
+      {:error, %Jason.DecodeError{}} ->
+        raise(ApiError, :json)
+
       {:ok, _status, _headers, response} ->
         raise(ApiError, {:http, %{req_body: body, response: response}})
-
-      {:error, :invalid} ->
-        raise(ApiError, :json)
-
-      {:error, {:invalid, _}} ->
-        raise(ApiError, :json)
 
       {:error, reason} ->
         raise(ApiError, {:plain, %{message: inspect(reason)}})
@@ -84,6 +80,9 @@ defmodule Bamboo.SendcloudAdapter do
 
     config
   end
+
+  @doc false
+  def supports_attachments?, do: false
 
   defp raise_missing_setting_error(config, setting) do
     raise ArgumentError, """
@@ -199,12 +198,20 @@ defmodule Bamboo.SendcloudAdapter do
     |> Map.put(:xsmtpapi, content)
   end
 
-  defp api_uri(%Email{private: %{template_name: _, sub: _}}) do
-    @send_template_email_uri
+  defp base_uri(%Config{api_type: :china_mainland}, path) do
+    @base_uri <> path
   end
 
-  defp api_uri(%Email{}) do
-    @send_email_uri
+  defp base_uri(_config, path) do
+    @base_uri_international <> path
+  end
+
+  defp api_uri(%Email{private: %{template_name: _, sub: _}}, config) do
+    base_uri(config, @send_template_email_path)
+  end
+
+  defp api_uri(%Email{}, config) do
+    base_uri(config, @send_email_path)
   end
 
   @sendcloud_message_fields ~w(from to cc bcc subject plain html headers templateInvokeName xsmtpapi)a
