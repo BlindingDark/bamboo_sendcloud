@@ -47,7 +47,7 @@ defmodule Bamboo.Sendcloud.Mixfile do
     [
       {:bamboo, "~> 1.4"},
       {:hackney, "~> 1.6"},
-      {:jason, "~> 1.1"},
+      {:jason, "~> 1.2", override: true},
       {:plug, "~> 1.0"},
       {:cowboy, "~> 1.0", only: [:test, :dev]},
       {:ex_doc, "~> 0.13", only: :dev},
